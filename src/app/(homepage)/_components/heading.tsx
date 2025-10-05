@@ -23,7 +23,7 @@ export default function Heading() {
           https://www.<span className="text-white">alolya</span>.gov.ly
         </p>
       </div>
-      <div className="absolute top-[520px] md:top-[400px] min-[1230px]:top-[240px] min-[1230px]:left-[150px] left-1/2 -translate-1/2 min-[1800px]:translate-0 min-[1800px]:mt-10">
+      <div className="absolute top-[520px] md:top-[400px] lg:top-[240px] min-[1100px]:mt-[150px] min-[1230px]:mt-[0px] min-[1230px]:top-[240px] min-[1230px]:left-[150px] left-1/2 -translate-1/2 min-[1800px]:translate-0 min-[1800px]:mt-10">
         <ProgressRingLoader
           color="#e6c599"
           size={130}
