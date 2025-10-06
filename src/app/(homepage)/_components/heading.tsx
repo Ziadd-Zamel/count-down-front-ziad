@@ -60,7 +60,7 @@ export default function Heading() {
       <div className="flex items-center justify-center box-container mt-[100px] mb-[180px] min-[1230px]:mb-0  min-[2000px]:mt-[200px] ">
         <div className=" text-lg sm:text-2xl min-[1800px]:text-5xl min-[2000px]:!text-6xl text-center relative z-20 text-white">
           <p>الموقع الإلكتروني للمحكمة العليا بحلة جديدة ومحتوى مزيد</p>
-          <p> بإذنة تعالي خلال</p>
+          <p> بإذنه تعالى خلال</p>
         </div>
       </div>
       <div className="box-container relative z-10 mt-10">
