@@ -6,36 +6,69 @@ export default function CountdownTimer() {
   const [isStarted, setIsStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({
     days: 90,
-    hours: 23,
-    minutes: 59,
-    seconds: 59,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
   });
+
+  // On mount, check if countdown was started previously and resume from localStorage
+  useEffect(() => {
+    try {
+      const storedEnd = localStorage.getItem("countdownEnd");
+      if (storedEnd) {
+        const endTimeMs = Number(storedEnd);
+        const now = Date.now();
+        if (!Number.isNaN(endTimeMs) && endTimeMs > now) {
+          setIsStarted(true);
+          const diff = endTimeMs - now;
+          const totalSeconds = Math.floor(diff / 1000);
+          const days = Math.floor(totalSeconds / (24 * 3600));
+          const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          setTimeLeft({ days, hours, minutes, seconds });
+        } else {
+          // Expired, clear persisted end time
+          localStorage.removeItem("countdownEnd");
+        }
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (!isStarted) return;
 
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { days, hours, minutes, seconds } = prev;
-
-        if (seconds > 0) {
-          seconds--;
-        } else if (minutes > 0) {
-          minutes--;
-          seconds = 59;
-        } else if (hours > 0) {
-          hours--;
-          minutes = 59;
-          seconds = 59;
-        } else if (days > 0) {
-          days--;
-          hours = 23;
-          minutes = 59;
-          seconds = 59;
+      try {
+        const storedEnd = localStorage.getItem("countdownEnd");
+        if (!storedEnd) {
+          // Safety: if missing, stop the countdown
+          setIsStarted(false);
+          clearInterval(timer);
+          return;
         }
+        const endTimeMs = Number(storedEnd);
+        const now = Date.now();
+        const diff = Math.max(0, endTimeMs - now);
+        const totalSeconds = Math.floor(diff / 1000);
 
-        return { days, hours, minutes, seconds };
-      });
+        const days = Math.floor(totalSeconds / (24 * 3600));
+        const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        setTimeLeft({ days, hours, minutes, seconds });
+
+        if (diff <= 0) {
+          clearInterval(timer);
+          localStorage.removeItem("countdownEnd");
+          setIsStarted(false);
+        }
+      } catch {
+        // If any error occurs, stop gracefully
+        clearInterval(timer);
+        setIsStarted(false);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
@@ -128,8 +161,17 @@ export default function CountdownTimer() {
         <div className="flex justify-center mt-6 min-[1800px]:mt-12 min-[2000px]:mt-16">
           {!isStarted && (
             <Button
-              className="w-[180px] sm:w-[220px] md:w-[300px] min-[1800px]:w-[400px] min-[2000px]:w-[500px] h-[44px] sm:h-[56px] md:h-[64px] min-[1800px]:!h-[80px] min-[2000px]:!h-[96px] text-base sm:text-lg md:text-xl min-[1800px]:!text-3xl min-[2000px]:!text-4xl"
-              onClick={() => setIsStarted(true)}
+              className="w-[180px] sm:w-[220px] md:w-[300px] min-[2000px]:w-[500px] h-[44px] sm:h-[56px] md:h-[64px] min-[1800px]:!h-[70px] min-[2000px]:!h-[96px] text-base sm:text-lg md:text-xl min-[1800px]:!text-2xl min-[2000px]:!text-4xl"
+              onClick={() => {
+                const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
+                const endTimeMs = Date.now() + ninetyDaysMs;
+                try {
+                  localStorage.setItem("countdownEnd", String(endTimeMs));
+                } catch {
+                  // ignore storage errors
+                }
+                setIsStarted(true);
+              }}
               disabled={isStarted}
             >
               {isStarted ? "جاري العد التنازلي..." : "الإذن برفع البيانات"}
